@@ -31,20 +31,23 @@ GOLOGIN_CONF = {
     "profile_path": r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/gologin profile"
 }
 
-CHROME_DRIVER_PATH = r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/chrome driver/chromedriver-win64/chromedriver.exe"
+CHROME_DRIVER_PATH = r"C:/Users/DELL/Desktop/another bot/chrome driver/chromedriver-win64/chromedriver.exe"
 driver = None
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import WebDriverException
 import time
+from webdriver_manager.chrome import ChromeDriverManager
+
 gl = GoLogin(GOLOGIN_CONF)
 debugger_address = gl.start()  # returns something like "127.0.0.1:XXXXX"
 print("Started gologin")
-options = webdriver.ChromeOptions()
+options = Options()
 options.add_experimental_option("debuggerAddress", debugger_address)
-service = Service(CHROME_DRIVER_PATH)
+service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
+
 driver.get("https://seller-us.tiktok.com/promotion/marketing-tools/regular-flash-sale/create?back=1&shop_region=US")
 
 ### Clicking on the button of select products:
