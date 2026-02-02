@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 def get_product_info(sku):
     url = f"https://www.amazon.com/dp/{sku}"
 
-    folder_path = r"C:/Users/DELL/Downloads/products/"+product_title
+    folder_path = r"C:/Users/Lenovo/Downloads/Products_/"+product_title
 
     options = Options()
     options.add_argument("--start-maximized")

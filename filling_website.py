@@ -16,6 +16,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 # ===== Waits =====
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 
 # ===== Other =====
 import time
@@ -27,37 +28,62 @@ from tkinter import *
 GOLOGIN_CONF = {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzEzMTNiMzUxNGI3NzAxNzhjMDRiNDUiLCJ0eXBlIjoiZGV2Iiwiand0aWQiOiI2ODVhZWJjMzk2NzMyYTJjNjU2YTJhNTEifQ.xBSrKOOUX3djmsvr0T6zjqGbZ4Ic4gdHH20Xd2Krquk",
     "profile_id": "6834ec3749adaff086ca5eb9",
-    "profile_path": r"C:/GoLoginProfiles"
+    "profile_path": r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/gologin profile"
 }
 
-CHROME_DRIVER_PATH = r"C:/143_webdriver/chromedriver-win64/chromedriver-win64/chromedriver.exe"
+CHROME_DRIVER_PATH = r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/chrome driver/chromedriver-win64/chromedriver.exe"
 driver = None
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import WebDriverException
+import time
+
 def get_driver():
     global driver
-
     if driver is not None:
-        return driver  # ✅ reuse existing session
+        try:
+            driver.title  # check if session alive
+            return driver
+        except WebDriverException:
+            print("❌ Previous session lost, restarting...")
 
-    print("🚀 Starting GoLogin for the first time")
+    print("🚀 Starting GoLogin...")
 
     gl = GoLogin(GOLOGIN_CONF)
-    debugger_address = gl.start()
+    debugger_address = gl.start()  # returns something like "127.0.0.1:XXXXX"
 
-    service = Service(CHROME_DRIVER_PATH)
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("debuggerAddress", debugger_address)
+    # Wait until Chrome debugger is ready
+    timeout = 30
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option("debuggerAddress", debugger_address)
+            service = Service(CHROME_DRIVER_PATH)
+            driver = webdriver.Chrome(service=service, options=options)
+            # driver.title  # test connection
+            print("✅ Connected to GoLogin Chrome successfully!")
+            return driver
+        except Exception:
+            time.sleep(1)  # wait 1 second and try again
 
-    driver = webdriver.Chrome(service=service, options=options)
-    time.sleep(10)
-
-    return driver
-
-
+#     raise RuntimeError("Could not connect to GoLogin Chrome. Make sure the profile is set to keep the browser open.")
 
 def listing(product_title,product_description,sku, updated_price, weight, dimensions):
     driver = get_driver()
-    driver.execute_script("window.open('');")  # open blank tab
-    driver.switch_to.window(driver.window_handles[-1])
+    # gl = GoLogin(GOLOGIN_CONF)
+    # debugger_address = gl.start()  # returns something like "127.0.0.1:XXXXX"
+    # options = webdriver.ChromeOptions()
+    # options.add_experimental_option("debuggerAddress", debugger_address)
+    # service = Service(CHROME_DRIVER_PATH)
+    # driver = webdriver.Chrome(service=service, options=options)
+    # # driver.title  # test connection
+    # print("✅ Connected to GoLogin Chrome successfully!")
+    # print("The problem is in window opening script code")
+    # driver.execute_script("window.open('about:blank', '_blank');")
+    # time.sleep(1)  # give the browser a moment
+    # driver.switch_to.window(driver.window_handles[-1])
     driver.get("https://seller-us.tiktok.com/product/create?channel=manage&shop_region=US")
 
     # Switch to the new tab

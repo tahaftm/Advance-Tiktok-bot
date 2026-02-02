@@ -8,7 +8,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 import imagehash
-import threading
+from selenium.common.exceptions import InvalidSessionIdException
 
 # def start_listing(product_title, product_description, sku, updated_price, weight, dimensions):
 #     threading.Thread(
@@ -20,7 +20,7 @@ def extractAllinfo(sku):
     # ----------------- SETUP CHROME -----------------
     options = webdriver.ChromeOptions()
 
-    options.add_argument(r"user-data-dir=C:/selinium/chrome-taha")
+    # options.add_argument(r"user-data-dir=C:/selinium/chrome-taha")
 
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -106,7 +106,7 @@ def extractAllinfo(sku):
         return imagehash.phash(img)
 
     folder_name = re.sub(r'[<>:"/\\|?*]', '_', product_title)
-    folder_path = os.path.join(r"C:/Users/DELL/Downloads/products/", folder_name)
+    folder_path = os.path.join(r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/Products", folder_name)
     os.makedirs(folder_path, exist_ok=True)
 
     headers = {
@@ -252,6 +252,11 @@ def extractAllinfo(sku):
     print("extracted all info for one product!")
     # print(weight)
     from filling_website import listing
-    listing(product_title, product_description, sku, updated_price, weight, new_dimensions)
+    try:
+        listing(product_title, product_description, sku, updated_price, weight, new_dimensions)
+    except InvalidSessionIdException:
+        print("Session lost, retrying...")
+        driver = None  # force restart
+        listing(product_title, product_description, sku, updated_price, weight, new_dimensions)
 
 # extractAllinfo("1368060730")
