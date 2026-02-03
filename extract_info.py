@@ -31,6 +31,13 @@ def extractAllinfo(sku):
     options.add_argument("--start-maximized")  # This makes the Chrome window start maximized
     options.add_argument("--disable-popup-blocking")
 
+    options.add_argument(
+        r"--user-data-dir=C:/selinium/chrome-taha"
+    )
+
+    # EXACT profile folder name
+    options.add_argument("--profile-directory=Default")  # change if needed
+
     driver = webdriver.Chrome(options=options)
     # ----------------- OPEN AMAZON PRODUCT -----------------
     url = f"https://www.amazon.com/dp/{sku}"
@@ -96,7 +103,7 @@ def extractAllinfo(sku):
     
 
     print("Product Description:\n", product_description)
-    # ----------------- GET ALL IMAGES -----------------
+    # # ----------------- GET ALL IMAGES -----------------
     
     def normalize_amazon_url(url):
         return re.sub(r'\._[^.]+_', '.', url)
@@ -106,7 +113,7 @@ def extractAllinfo(sku):
         return imagehash.phash(img)
 
     folder_name = re.sub(r'[<>:"/\\|?*]', '_', product_title)
-    folder_path = os.path.join(r"C:/Users/Lenovo/Desktop/advance bot/Advance-Tiktok-bot/Products", folder_name)
+    folder_path = os.path.join(r"C:/Users/DELL/Downloads/products", folder_name)
     os.makedirs(folder_path, exist_ok=True)
 
     headers = {

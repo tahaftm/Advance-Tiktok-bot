@@ -38,16 +38,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import WebDriverException
 import time
-from webdriver_manager.chrome import ChromeDriverManager
-
 gl = GoLogin(GOLOGIN_CONF)
 debugger_address = gl.start()  # returns something like "127.0.0.1:XXXXX"
 print("Started gologin")
-options = Options()
+options = webdriver.ChromeOptions()
 options.add_experimental_option("debuggerAddress", debugger_address)
-service = Service(ChromeDriverManager().install())
+service = Service(CHROME_DRIVER_PATH)
 driver = webdriver.Chrome(service=service, options=options)
-
 driver.get("https://seller-us.tiktok.com/promotion/marketing-tools/regular-flash-sale/create?back=1&shop_region=US")
 
 ### Clicking on the button of select products:
