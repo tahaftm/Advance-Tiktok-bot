@@ -169,7 +169,16 @@ def extractAllinfo(sku):
 
             print("Saved:", file_path)
             image_index += 1
+        if len(saved_hashes) < 5:
+    ###                     REVIEWS IMAGES
+            buttons = driver.find_elements(By.CSS_SELECTOR, "ol.a-carousel button[data-url]")
+            urls = [b.get_attribute("data-url") for b in buttons]
 
+            for i, url in enumerate(urls, 1):
+                r = requests.get(url, timeout=15)
+                with open(f"{folder_path}/img_{i}_reviews.jpg", "wb") as f:
+                    f.write(r.content)
+                    print(f"{folder_path}/img_{i}_reviews.jpg downloaded")
     except Exception as e:
         print("Image extraction error:", e)
 
@@ -266,4 +275,4 @@ def extractAllinfo(sku):
         driver = None  # force restart
         listing(product_title, product_description, sku, updated_price, weight, new_dimensions)
 
-# extractAllinfo("1368060730")
+extractAllinfo("0801094577")
