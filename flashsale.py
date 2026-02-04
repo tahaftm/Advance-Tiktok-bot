@@ -54,7 +54,7 @@ def start_flashsale(profile_id):
     options.add_experimental_option("debuggerAddress", debugger_address)
     service = Service(CHROME_DRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
-K
+
     driver.switch_to.new_window('tab')
     driver.get("https://seller-us.tiktok.com/promotion/marketing-tools/regular-flash-sale/create?back=1&shop_region=US")
 
