@@ -45,35 +45,44 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option("debuggerAddress", debugger_address)
 service = Service(CHROME_DRIVER_PATH)
 driver = webdriver.Chrome(service=service, options=options)
+driver.switch_to.new_window('tab')
 driver.get("https://seller-us.tiktok.com/promotion/marketing-tools/regular-flash-sale/create?back=1&shop_region=US")
 
 ### Clicking on the button of select products:
 wait = WebDriverWait(driver, 10)
 try:
-    button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-tid="m4b_button"]'))
+    select_products_btn = wait.until(
+    EC.element_to_be_clickable(
+        (By.XPATH, "//button[.//span[normalize-space()='Select products']]")
+        )
     )
-    button.click()
+
+    select_products_btn.click()
+
 except Exception:
     print("Could not open the product selection")
 
 ## Click on 50/pages
-dropdown = wait.until(
-    EC.element_to_be_clickable((By.CSS_SELECTOR, ".theme-arco-select-view"))
+page_size_span = wait.until(
+    EC.element_to_be_clickable(
+        (By.XPATH, "//span[normalize-space()='50/Page']")
+    )
 )
-dropdown.click()
+page_size_span.click()
+
 
 wait.until(
     EC.element_to_be_clickable(
         (By.XPATH, "//span[text()='1000/Page']")
     )
 ).click()
-
+time.sleep(20)
 checkbox = wait.until(
     EC.element_to_be_clickable(
-        (By.CSS_SELECTOR, ".theme-arco-checkbox-mask")
+        (By.XPATH, "//label[contains(@class,'theme-arco-checkbox')]")
     )
 )
+
 checkbox.click()
 
 ## click on done
@@ -82,5 +91,44 @@ wait.until(
         (By.XPATH, "//button[.//span[normalize-space()='Done']]")
     )
 ).click()
-time.sleep(130)
+time.sleep(30)
 print("Done")
+# get all product rows
+rows = wait.until(
+    EC.presence_of_all_elements_located(
+        (By.XPATH, "//div[contains(@class,'theme-arco-table-tr')]")
+    )
+)
+
+print(f"Found {len(rows)} rows")
+
+for index in range(len(rows)):
+    # re-fetch rows every loop (prevents stale element issues)
+    rows = driver.find_elements(
+        By.XPATH, "//div[contains(@class,'theme-arco-table-tr')]"
+    )
+    row = rows[index]
+
+    # 1️⃣ extract price text
+    price_text = row.find_element(
+        By.XPATH, ".//span[contains(@class,'theme-arco-table-cell-wrap-value')]//p"
+    ).text
+    # example: "$26.99"
+
+    # 2️⃣ extract digits only
+    price_value = float(re.sub(r"[^\d.]", "", price_text))
+
+    # 3️⃣ add 10
+    new_price = price_value - 10
+    print(f"Row {index+1}: {price_value} → {new_price}")
+
+    # 4️⃣ find input in same row
+    price_input = row.find_element(
+        By.XPATH, ".//input[@data-tid='m4b_input']"
+    )
+
+    # clear + send new value
+    price_input.clear()
+    price_input.send_keys(f"{new_price:.2f}")
+
+    time.sleep(0.3)  # small delay to look human
